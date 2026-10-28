@@ -203,6 +203,19 @@ $ray_id = bin2hex($rayIdBytes);
             min-width: 0;
             text-align: center;
         }
+        .status:last-child { position: relative; }
+        .status:last-child::after {
+            position: absolute;
+            bottom: -45px;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-right: 20px solid transparent;
+            border-bottom: 20px solid #fff;
+            border-left: 20px solid transparent;
+            content: "";
+            transform: translateX(-50%);
+        }
         .status-location, .status h2, .status-result { display: block; }
         .status-location { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .status h2 {
@@ -294,6 +307,7 @@ $ray_id = bin2hex($rayIdBytes);
             .status {
                 width: 18%;
             }
+            .status:last-child::after { bottom: -30px; }
             .status-location { font-size: 13px; }
             .status h2, .status-result { font-size: 16px; }
             .info-section { padding: 28px 0 36px; }
