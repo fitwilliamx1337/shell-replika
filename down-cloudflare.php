@@ -111,9 +111,29 @@ if (!isAuthenticated()) {
     $user_ip = get_user_ip();
 }
 
-$host = $_SERVER['HTTP_HOST'] ?? 'origin';
+$host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'origin';
 $timestamp = gmdate('Y-m-d H:i:s') . ' UTC';
-$ray_id = bin2hex(random_bytes(8));
+if (function_exists('random_bytes')) {
+    $rayIdBytes = random_bytes(8);
+} elseif (function_exists('openssl_random_pseudo_bytes')) {
+    $strong = false;
+    $rayIdBytes = openssl_random_pseudo_bytes(8, $strong);
+    if ($rayIdBytes === false || $strong !== true) {
+        throw new RuntimeException('A cryptographically secure random source is unavailable.');
+    }
+} elseif (DIRECTORY_SEPARATOR !== '\\' && is_readable('/dev/urandom')) {
+    $randomSource = fopen('/dev/urandom', 'rb');
+    $rayIdBytes = $randomSource !== false ? fread($randomSource, 8) : false;
+    if ($randomSource !== false) {
+        fclose($randomSource);
+    }
+    if ($rayIdBytes === false || strlen($rayIdBytes) !== 8) {
+        throw new RuntimeException('A cryptographically secure random source is unavailable.');
+    }
+} else {
+    throw new RuntimeException('A cryptographically secure random source is unavailable.');
+}
+$ray_id = bin2hex($rayIdBytes);
 ?>
 <!DOCTYPE html>
 <html lang="en">
