@@ -321,7 +321,7 @@ $ray_id = bin2hex(random_bytes(8));
     
     <div class="browser-window">
         <br><br>
-        <img src="https://iuc-tisp7.amu.edu.et/app/upload/users/7/7/my_files/cloudflare.png" alt="Cloudflare Block">
+        <img src="https://i.ibb.co.com/pkbsqw5/cloudflare.png" alt="Cloudflare Block">
     </div>
 
     <div class="info-section">
